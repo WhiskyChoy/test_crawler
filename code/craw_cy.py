@@ -30,7 +30,7 @@ NORMAL_CMD_CODE = '\033[0m'
 # 起始项目指针，小于等于0则会从当前爬取的项目开始
 START_PROJECT_NUM = 0
 # 终止项目指针，小于等于0则会爬取到网站提供的最后一个项目
-END_PROJECT_NUM = 50000
+END_PROJECT_NUM = 22605
 # 每个项目放一个文件，该文件的行分隔符
 CUSTOMIZED_SEP = '\n\n'
 LF = '\n'
@@ -260,11 +260,11 @@ def main():
             output_file_path = DATA_PREFIX + output_filename
             write_str_file(project_detail.to_string(), output_file_path)
             data_file.write(project_detail.to_csv_line() + LF)
-            project_index += 1
             progress_bar.update(1)
             index_file.truncate(0)
             index_file.seek(0, 0)
             index_file.write('Current Project Index: %d' % project_index)
+            project_index += 1
             if project_index == total_project_num + 1:
                 break
             time.sleep(SLEEP_TIME_FOR_PROJECT)
