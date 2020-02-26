@@ -20,17 +20,17 @@ COUNT_URL = URL_PREFIX + 'projectcount'
 LIST_URL = URL_PREFIX + 'projectlist'
 # CSV存储位置（所有项目放在一个CSV）
 DATA_FILE_PATH = DATA_PREFIX + 'data.csv'
-INDEX_FILE_PATH = DATA_PREFIX + 'in'
+INDEX_FILE_PATH = DATA_PREFIX + 'index.txt'
 # 每页的项目数
 PAGE_SIZE = 15
 # 红色字符头
 RED_CMD_CODE = '\033[1;31;m'
 # 默认颜色
 NORMAL_CMD_CODE = '\033[0m'
-# 起始项目指针
-START_PROJECT_NUM = 22593
-# 终止项目指针
-END_PROJECT_NUM = 50000
+# 起始项目指针，小于等于0则会从当前爬取的项目开始
+START_PROJECT_NUM = 0
+# 终止项目指针，小于等于0则会爬取到网站提供的最后一个项目
+END_PROJECT_NUM = 22598
 # 每个项目放一个文件，该文件的行分隔符
 CUSTOMIZED_SEP = '\n\n'
 LF = '\n'
@@ -182,6 +182,20 @@ def make_suitable_for_file(input_str):
     return result
 
 
+def get_current_project_index():
+    if not os.path.exists(INDEX_FILE_PATH):
+        return 0
+    else:
+        index_file = open(INDEX_FILE_PATH, 'r', encoding='utf-8', newline='\n')
+        index_line = index_file.readline()
+        if index_line == '':
+            return 0
+        index = re.findall(r'Current Project Index: (.*)', index_line)
+        if len(index) == 0:
+            return 0
+        return int(index[0])
+
+
 def main():
     if not os.path.exists(DATA_PREFIX):
         os.makedirs(DATA_PREFIX)
@@ -194,7 +208,7 @@ def main():
 
     if END_PROJECT_NUM > 0:
         total_project_num = min(END_PROJECT_NUM, total_project_num)
-    smallest_project_num = START_PROJECT_NUM if START_PROJECT_NUM > 1 else 1
+    smallest_project_num = START_PROJECT_NUM if START_PROJECT_NUM >= 1 else get_current_project_index() + 1
 
     page_start_num = math.floor(smallest_project_num / PAGE_SIZE)
     page_end_num = math.ceil(total_project_num / PAGE_SIZE)
@@ -211,12 +225,16 @@ def main():
     # 创建进度条，trange与range相似，前两个参数是起始值和终止值，这里的leave是留下继续显示的意思
     # project_index这里从1开始，不从0开始，所以total_project_num要加1
     progress_bar = trange(project_index, total_project_num + 1, desc='爬取进度')
+
     lines = []
     if os.path.exists(DATA_FILE_PATH):
         data_file = open(DATA_FILE_PATH, 'r', encoding='utf-8', newline='\n')
         lines = data_file.readlines()
         data_file.close()
+
     data_file = open(DATA_FILE_PATH, 'w', encoding='utf-8', newline='\n')
+    index_file = open(INDEX_FILE_PATH, 'w', encoding='utf-8', newline='\n')
+
     len_lines = len(lines)
     if len_lines == 0:
         data_file.write(CSV_HEADER + LF)
@@ -244,13 +262,18 @@ def main():
             data_file.write(project_detail.to_csv_line() + LF)
             project_index += 1
             progress_bar.update(1)
+            index_file.truncate(0)
+            index_file.seek(0, 0)
+            index_file.write('Current Project Index: %d' % project_index)
             if project_index == total_project_num + 1:
                 break
             time.sleep(SLEEP_TIME_FOR_PROJECT)
 
         time.sleep(SLEEP_TIME_FOR_PAGE)
+
     progress_bar.close()
     data_file.close()
+    index_file.close()
 
 
 if __name__ == '__main__':

@@ -17,3 +17,7 @@ print(make_suitable_for_file('&quot; \x00 \x0b / \\ : * " < > | ?'))
 print('test'[0:0])
 print(result.group())
 print(a, b, c)
+
+index = re.match(r'Current Project Index: (.*)', 'Current Project Index: 10')
+
+print(index.group(1))
