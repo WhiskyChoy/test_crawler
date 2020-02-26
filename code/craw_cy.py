@@ -30,7 +30,7 @@ NORMAL_CMD_CODE = '\033[0m'
 # 起始项目指针，小于等于0则会从当前爬取的项目开始
 START_PROJECT_NUM = 0
 # 终止项目指针，小于等于0则会爬取到网站提供的最后一个项目
-END_PROJECT_NUM = 22605
+END_PROJECT_NUM = 50000
 # 每个项目放一个文件，该文件的行分隔符
 CUSTOMIZED_SEP = '\n\n'
 LF = '\n'
