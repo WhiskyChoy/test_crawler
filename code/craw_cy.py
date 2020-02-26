@@ -183,6 +183,9 @@ def make_suitable_for_file(input_str):
 
 
 def main():
+    if not os.path.exists(DATA_PREFIX):
+        os.makedirs(DATA_PREFIX)
+
     total_project_num = int(safe_get_request_text_getter(COUNT_URL))
 
     print("Total project number is read from the website as [%d]." % total_project_num)
