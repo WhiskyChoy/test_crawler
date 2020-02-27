@@ -200,23 +200,27 @@ def main():
     if not os.path.exists(DATA_PREFIX):
         os.makedirs(DATA_PREFIX)
 
-    total_project_num = int(safe_get_request_text_getter(COUNT_URL))
+    final_project_num = int(safe_get_request_text_getter(COUNT_URL))
 
-    print("Total project number is read from the website as [%d]." % total_project_num)
+    print("Final project number is read from the website as [%d]." % final_project_num)
 
-    digit_len_max_project_num = len(str(total_project_num))
+    digit_len_max_project_num = len(str(final_project_num))
 
     if END_PROJECT_NUM > 0:
-        total_project_num = min(END_PROJECT_NUM, total_project_num)
+        final_project_num = min(END_PROJECT_NUM, final_project_num)
     smallest_project_num = START_PROJECT_NUM if START_PROJECT_NUM >= 1 else get_current_project_index() + 1
 
+    if smallest_project_num >= final_project_num:
+        print("The final project number is smaller than the smallest number! No need to catch more!")
+        return
+
     page_start_num = math.floor((smallest_project_num - 1) / PAGE_SIZE)
-    page_end_num = math.ceil((total_project_num - 1) / PAGE_SIZE)
+    page_end_num = math.ceil((final_project_num - 1) / PAGE_SIZE)
 
     project_index = page_start_num * PAGE_SIZE + 1
 
-    expected_num = total_project_num - smallest_project_num + 1
-    actual_num = total_project_num - project_index + 1
+    expected_num = final_project_num - smallest_project_num + 1
+    actual_num = final_project_num - project_index + 1
     delta_num = actual_num - expected_num
     print("The number of projects expected to get is [%d]." % expected_num)
     print("When consider the old page refreshed, there are [%d] project(s) rewritten." % delta_num)
@@ -224,7 +228,7 @@ def main():
 
     # 创建进度条，trange与range相似，前两个参数是起始值和终止值，这里的leave是留下继续显示的意思
     # project_index这里从1开始，不从0开始，所以total_project_num要加1
-    progress_bar = trange(project_index, total_project_num + 1, desc='爬取进度')
+    progress_bar = trange(project_index, final_project_num + 1, desc='爬取进度')
 
     lines = []
     if os.path.exists(DATA_FILE_PATH):
@@ -266,7 +270,7 @@ def main():
             index_file.seek(0, 0)
             index_file.write('Current Project Index: %d' % project_index)
             project_index += 1
-            if project_index == total_project_num + 1:
+            if project_index == final_project_num + 1:
                 to_break_outsider = True
                 break
             time.sleep(SLEEP_TIME_FOR_PROJECT)
