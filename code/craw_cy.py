@@ -28,7 +28,7 @@ RED_CMD_CODE = '\033[1;31;m'
 # 默认颜色
 NORMAL_CMD_CODE = '\033[0m'
 # 起始项目指针，小于等于0则会从当前爬取的项目开始
-START_PROJECT_NUM = 15
+START_PROJECT_NUM = 0
 # 终止项目指针，小于等于0则会爬取到网站提供的最后一个项目
 END_PROJECT_NUM = 46
 # 每个项目放一个文件，该文件的行分隔符
@@ -211,7 +211,7 @@ def main():
     smallest_project_num = START_PROJECT_NUM if START_PROJECT_NUM >= 1 else get_current_project_index() + 1
 
     page_start_num = math.floor((smallest_project_num - 1) / PAGE_SIZE)
-    page_end_num = math.ceil(total_project_num / PAGE_SIZE)
+    page_end_num = math.ceil((total_project_num - 1) / PAGE_SIZE)
 
     project_index = page_start_num * PAGE_SIZE + 1
 
@@ -265,7 +265,7 @@ def main():
             index_file.seek(0, 0)
             index_file.write('Current Project Index: %d' % project_index)
             project_index += 1
-            if project_index == total_project_num + 1:
+            if project_index == total_project_num:
                 break
             time.sleep(SLEEP_TIME_FOR_PROJECT)
 
