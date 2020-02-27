@@ -210,8 +210,8 @@ def main():
         total_project_num = min(END_PROJECT_NUM, total_project_num)
     smallest_project_num = START_PROJECT_NUM if START_PROJECT_NUM >= 1 else get_current_project_index() + 1
 
-    page_start_num = math.floor(smallest_project_num / PAGE_SIZE)
-    page_end_num = math.ceil(total_project_num / PAGE_SIZE)
+    page_start_num = math.floor(smallest_project_num - 1 / PAGE_SIZE)
+    page_end_num = math.ceil(total_project_num - 1 / PAGE_SIZE)
 
     project_index = page_start_num * PAGE_SIZE + 1
 
