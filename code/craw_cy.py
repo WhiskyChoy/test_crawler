@@ -30,7 +30,7 @@ NORMAL_CMD_CODE = '\033[0m'
 # 起始项目指针，小于等于0则会从当前爬取的项目开始
 START_PROJECT_NUM = 0
 # 终止项目指针，小于等于0则会爬取到网站提供的最后一个项目
-END_PROJECT_NUM = 46
+END_PROJECT_NUM = 17
 # 每个项目放一个文件，该文件的行分隔符
 CUSTOMIZED_SEP = '\n\n'
 LF = '\n'
@@ -239,8 +239,9 @@ def main():
     if len_lines == 0:
         data_file.write(CSV_HEADER + LF)
     else:
-        data_file.writelines(lines[0:min(project_index + 1, len_lines)])
-    for page_index in range(page_start_num, page_end_num):
+        data_file.writelines(lines[0:min(project_index, len_lines)])
+    # range不包含page_end_num+1
+    for page_index in range(page_start_num, page_end_num + 1):
         # 查询字符串
         params = {
             # api页面从0记起
@@ -249,9 +250,9 @@ def main():
         }
         table_content = safe_get_request_text_getter(LIST_URL, params=params, headers=get_headers(),
                                                      proxies=get_proxies())
-        # print(table_content)
         data_links = re.findall(r'<tr.*?data-link="(.*?)".*?>', table_content)
-        # print(data_links)
+        # python跳出外层循环比较麻烦
+        to_break_outsider = False
         for data_link in data_links:
             project_detail = get_project_detail(data_link)
             # 这里从1开始编号文件，如果不想从1开始编号就把project_counter + 1后面的+ 1去掉
@@ -265,9 +266,12 @@ def main():
             index_file.seek(0, 0)
             index_file.write('Current Project Index: %d' % project_index)
             project_index += 1
-            if project_index == total_project_num:
+            if project_index == total_project_num + 1:
+                to_break_outsider = True
                 break
             time.sleep(SLEEP_TIME_FOR_PROJECT)
+        if to_break_outsider:
+            break
 
         time.sleep(SLEEP_TIME_FOR_PAGE)
 
