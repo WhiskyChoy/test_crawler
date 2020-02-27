@@ -18,6 +18,6 @@ print('test'[0:0])
 print(result.group())
 print(a, b, c)
 
-index = re.match(r'Current Project Index: (.*)', 'Current Project Index: 10')
+index = re.findall(r'<h4>(.*?)</h4>', '<h4>贱贱速递</h4>')
 
-print(index.group(1))
+print(index[0])
